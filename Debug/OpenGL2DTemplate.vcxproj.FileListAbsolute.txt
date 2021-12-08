@@ -1,0 +1,2 @@
+E:\GUC\Semester 7 Courses\DMET 502 Graphics\Assignments\Flappy-Bird-Game\Debug\OpenGL2DTemplate.exe
+E:\GUC\Semester 7 Courses\DMET 502 Graphics\Assignments\test\Debug\OpenGL2DTemplate.exe
