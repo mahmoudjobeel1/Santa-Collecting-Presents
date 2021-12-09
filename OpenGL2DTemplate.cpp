@@ -1,3 +1,5 @@
+#include<iostream>
+#include<algorithm>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +9,25 @@
 #define DEG2RAD(a) (a * 0.0174532925)
 
 void drawStar();
+void setupLights();
+void setupCamera();
+void drawWall();
+void drawGate();
+void drawTree();
+void drawStar();
+void drawPresent();
+void drawIceMan();
+void drawIce();
+void drawSantaClause();
+void drawBase(double thickness);
+void Display();
+
+float santaPostions[3] = { 0,0,0 };
+
+float santaAngleRotation;
+float iceManAngleRotation;
+int c = 0;
+
 class Vector3f {
 public:
 	float x, y, z;
@@ -96,61 +117,162 @@ public:
 
 Camera camera;
 
-void drawWall(double thickness) {
-	glPushMatrix();
-	glTranslated(0.5, 0.5 * thickness, 0.5);
-	glScaled(1.0, thickness, 1.0);
-	glutSolidCube(1);
-	glPopMatrix();
+
+void Keyboard(unsigned char key, int x, int y) {
+	float d = 0.01;
+
+	switch (key) {
+	case 'w':
+		camera.moveY(d);
+		break;
+	case 's':
+		camera.moveY(-d);
+		break;
+	case 'a':
+		camera.moveX(d);
+		break;
+	case 'd':
+		camera.moveX(-d);
+		break;
+	case 'q':
+		camera.moveZ(d);
+		break;
+	case 'e':
+		camera.moveZ(-d);
+		break;
+	case '5':
+		santaAngleRotation = 180;
+		santaPostions[2] = std::max(0.0, santaPostions[2] - 0.01);
+		break;
+	case '2':
+		santaAngleRotation = 0;
+		santaPostions[2] = std::min(1.0, santaPostions[2] + 0.01);
+		break;
+	case '1':
+		santaAngleRotation = -90;
+		santaPostions[0] = std::max(0.0, santaPostions[0] - 0.01);
+		break;
+	case '3':
+		santaAngleRotation = 90;
+		santaPostions[0] = std::min(1.0, santaPostions[0] + 0.01);
+		break;
+	case GLUT_KEY_ESCAPE:
+		exit(EXIT_SUCCESS);
+	}
+
+	glutPostRedisplay();
 }
-void drawTableLeg(double thick, double len) {
-	glPushMatrix();
-	glTranslated(0, len / 2, 0);
-	glScaled(thick, len, thick);
-	glutSolidCube(1.0);
-	glPopMatrix();
+void Special(int key, int x, int y) {
+	float a = 1.0;
+
+	switch (key) {
+	case GLUT_KEY_UP:
+		camera.rotateX(a);
+		break;
+	case GLUT_KEY_DOWN:
+		camera.rotateX(-a);
+		break;
+	case GLUT_KEY_LEFT:
+		camera.rotateY(a);
+		break;
+	case GLUT_KEY_RIGHT:
+		camera.rotateY(-a);
+		break;
+	}
+
+	glutPostRedisplay();
 }
-void drawJackPart() {
-	glPushMatrix();
-	glScaled(0.2, 0.2, 1.0);
-	glutSolidSphere(1, 15, 15);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslated(0, 0, 1.2);
-	glutSolidSphere(0.2, 15, 15);
-	glTranslated(0, 0, -2.4);
-	glutSolidSphere(0.2, 15, 15);
-	glPopMatrix();
+
+
+void Timer(int value) {
+	c++;
+	if (c % 3 == 0) iceManAngleRotation = 15;
+	else iceManAngleRotation = -15;
+	glutTimerFunc(500, Timer, 0);
+	glutPostRedisplay();
 }
-void drawJack() {
-	glPushMatrix();
-	drawJackPart();
-	glRotated(90.0, 0, 1, 0);
-	drawJackPart();
-	glRotated(90.0, 1, 0, 0);
-	drawJackPart();
-	glPopMatrix();
+
+void main(int argc, char** argv) {
+	glutInit(&argc, argv);
+
+	glutInitWindowSize(640, 480);
+	glutInitWindowPosition(50, 50);
+
+	glutCreateWindow("Santa Collecting Presents");
+	glutDisplayFunc(Display);
+	glutKeyboardFunc(Keyboard);
+	glutSpecialFunc(Special);
+
+	glutTimerFunc(0, Timer, 0);
+
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_COLOR_MATERIAL);
+
+	glShadeModel(GL_SMOOTH);
+
+	glutMainLoop();
 }
-void drawTable(double topWid, double topThick, double legThick, double legLen) {
+void Display() {
+	setupCamera();
+	setupLights();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glPushMatrix();
-	glTranslated(0, legLen, 0);
-	glScaled(topWid, topThick, topWid);
-	glutSolidCube(1.0);
+	glRotated(0, 0, 0, 1.0);
+	drawBase(0.02);
 	glPopMatrix();
 
-	double dist = 0.95 * topWid / 2.0 - legThick / 2.0;
 	glPushMatrix();
-	glTranslated(dist, 0, dist);
-	drawTableLeg(legThick, legLen);
-	glTranslated(0, 0, -2 * dist);
-	drawTableLeg(legThick, legLen);
-	glTranslated(-2 * dist, 0, 2 * dist);
-	drawTableLeg(legThick, legLen);
-	glTranslated(0, 0, -2 * dist);
-	drawTableLeg(legThick, legLen);
+	glTranslated(santaPostions[0], santaPostions[1], santaPostions[2]);
+	glRotated(santaAngleRotation,0,1,0);
+	drawSantaClause();
 	glPopMatrix();
-}
 
+	glPushMatrix();
+	drawIceMan();
+	glPopMatrix();
+	//drawIce();
+
+	//drawIceMan();
+
+	//drawPresent();
+	//drawTree();
+	//
+	//glPushMatrix();
+	//glColor3f(1, 0, 0);
+	//glTranslated(0.5, 0.3, 0.5);
+	//glRotated(-90, 0, 1, 0);
+	////glRotated(20, 0, 0, 1);
+	//drawStar();
+	//drawTree();
+	//glPopMatrix();
+
+
+
+	/*drawGate();
+
+	drawTest();
+
+	glPushMatrix();
+	glRotated(90, 0, 1, 0);
+	drawTest();
+
+	glPopMatrix();
+	glTranslated(1, 0, 0);
+	drawTest();
+	glPushMatrix();
+
+	glPopMatrix();*/
+
+	glFlush();
+}
 void setupLights() {
 	GLfloat ambient[] = { 0.7f, 0.7f, 0.7, 1.0f };
 	GLfloat diffuse[] = { 0.6f, 0.6f, 0.6, 1.0f };
@@ -177,11 +299,8 @@ void setupCamera() {
 	camera.look();
 }
 
+void drawWall() {
 
-
-
-void drawTest() {
-	
 	//glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(0.5, 0.9, 0);
 
@@ -251,18 +370,16 @@ void drawTest() {
 	glScaled(0.01, 0.5, 0.01);
 	glutSolidCube(1.0);
 	glPopMatrix();
-		
+
 }
-
-
 void drawGate() {
 	glColor3f(1, 1, 0);
 	glPushMatrix();
-	glTranslated(.4, 0.08/2, .1);
+	glTranslated(.4, 0.08 / 2, .1);
 	glutSolidCube(.08);
 	glPopMatrix();
 
-	
+
 
 	glPushMatrix();
 	glTranslated(.6, 0.08 / 2, .1);
@@ -273,39 +390,39 @@ void drawGate() {
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslated(.4, 0.23, .1);
-	glScaled(0.06, .7/2, 0.06);
+	glScaled(0.06, .7 / 2, 0.06);
 	glutSolidCube(1);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(.6, 0.23, .1);
-	glScaled(0.06,.7/2,0.06);
+	glScaled(0.06, .7 / 2, 0.06);
 	glutSolidCube(1);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(.5, 0.43, .1);
 	glScaled(0.4, .06, 0.06);
 	glutSolidCube(1);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(.4, 0.475, .1);
 	glScaled(0.06, 0.03, 0.06);
 	glutSolidCube(1);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(.6, 0.475, .1);
 	glScaled(0.06, 0.03, 0.06);
 	glutSolidCube(1);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(.5, 0.52, .1);
 	glScaled(0.6, .06, 0.06);
@@ -325,17 +442,17 @@ void drawTree() {
 	glPushMatrix();
 	glTranslated(0, 0, 0);
 	glRotated(-90, 1, 0, 0);
-	glutSolidCone(0.15,.5,50,50);
+	glutSolidCone(0.15, .5, 50, 50);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(0, 0.2, 0);
 	glRotated(-90, 1, 0, 0);
 	glutSolidCone(0.12, .5, 50, 50);
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 	glTranslated(0, 0.4, 0);
 	glRotated(-90, 1, 0, 0);
@@ -384,10 +501,10 @@ void drawStar() {
 }
 
 void drawPresent() {
-	
+
 	glPushMatrix();
 	glColor3f(1, 0, 0);
-	glTranslated(0, 0.1/2, 0);
+	glTranslated(0, 0.1 / 2, 0);
 	glScaled(1, 1, 0.4);
 	glutSolidCube(0.1);
 	glPopMatrix();
@@ -416,8 +533,10 @@ void drawPresent() {
 
 void drawIceMan() {
 	glPushMatrix();
+	glRotated(iceManAngleRotation, 0, 0, 1);
+	glPushMatrix();
 	glColor3f(1, 0, 0);
-	glTranslated(0, 0.1/2, 0);
+	glTranslated(0, 0.1 / 2, 0);
 	glutSolidSphere(0.1, 15, 15);
 	glPopMatrix();
 
@@ -454,7 +573,7 @@ void drawIceMan() {
 
 	glPushMatrix();
 	glColor3f(0, 0, 0);
-	glTranslated(0.035, 0.27,0.04);
+	glTranslated(0.035, 0.27, 0.04);
 	glutSolidSphere(0.01, 15, 15);
 	glPopMatrix();
 
@@ -463,10 +582,12 @@ void drawIceMan() {
 	glTranslated(-0.035, 0.27, 0.04);
 	glutSolidSphere(0.01, 15, 15);
 	glPopMatrix();
+
+	glPopMatrix();
 }
 
 void drawIce() {
-	glColor3f(0,0,0);
+	glColor3f(0, 0, 0);
 	glPushMatrix();
 	glTranslated(0, 0.005, 0);
 	glRotated(-90, 1, 0, 0);
@@ -496,18 +617,18 @@ void drawIce() {
 void drawSantaClause() {
 
 	glPushMatrix();
-	glTranslated(0,0.15,0);
+	glTranslated(0, 0.15, 0);
 
 	glColor3f(0, 0, 0);
 	glPushMatrix();
-	glRotated(-90,1, 0, 0);
+	glRotated(-90, 1, 0, 0);
 	glutSolidCone(0.18, .4, 50, 50);
 	glPopMatrix();
 
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslated(0, 0.4 / 2, 0);
-	glutSolidSphere(0.1,15,15);
+	glutSolidSphere(0.1, 15, 15);
 	glPopMatrix();
 
 	glColor3f(0, 1, 0);
@@ -532,7 +653,7 @@ void drawSantaClause() {
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glTranslated(0.05, 0.25, 0);
-	glRotated(-30,0,0,1);
+	glRotated(-30, 0, 0, 1);
 	glRotated(90, 0, 1, 0);
 	GLUquadricObj* quadratic;
 	quadratic = gluNewQuadric();
@@ -562,7 +683,7 @@ void drawSantaClause() {
 
 	glPopMatrix();
 
-	
+
 	glPushMatrix();
 
 	glTranslated(0.05, 0, 0);
@@ -603,127 +724,10 @@ void drawSantaClause() {
 
 	glPopMatrix();
 }
-void Display() {
-	setupCamera();
-	setupLights();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+void drawBase(double thickness) {
 	glPushMatrix();
-	glRotated(0, 0, 0, 1.0);
-	drawWall(0.02);
+	glTranslated(0.5, 0.5 * thickness, 0.5);
+	glScaled(1.0, thickness, 1.0);
+	glutSolidCube(1);
 	glPopMatrix();
-
-
-	//drawSantaClause();
-
-	//drawIce();
-
-	//drawIceMan();
-
-	//drawPresent();
-	//drawTree();
-	//
-	//glPushMatrix();
-	//glColor3f(1, 0, 0);
-	//glTranslated(0.5, 0.3, 0.5);
-	//glRotated(-90, 0, 1, 0);
-	////glRotated(20, 0, 0, 1);
-	//drawStar();
-	//drawTree();
-	//glPopMatrix();
-
-
-	
-	/*drawGate();
-
-	drawTest();
-
-	glPushMatrix();
-	glRotated(90, 0, 1, 0);
-	drawTest();
-
-	glPopMatrix();
-	glTranslated(1, 0, 0);
-	drawTest();
-	glPushMatrix();
-
-	glPopMatrix();*/
-
-	glFlush();
-}
-
-void Keyboard(unsigned char key, int x, int y) {
-	float d = 0.01;
-
-	switch (key) {
-	case 'w':
-		camera.moveY(d);
-		break;
-	case 's':
-		camera.moveY(-d);
-		break;
-	case 'a':
-		camera.moveX(d);
-		break;
-	case 'd':
-		camera.moveX(-d);
-		break;
-	case 'q':
-		camera.moveZ(d);
-		break;
-	case 'e':
-		camera.moveZ(-d);
-		break;
-
-	case GLUT_KEY_ESCAPE:
-		exit(EXIT_SUCCESS);
-	}
-
-	glutPostRedisplay();
-}
-void Special(int key, int x, int y) {
-	float a = 1.0;
-
-	switch (key) {
-	case GLUT_KEY_UP:
-		camera.rotateX(a);
-		break;
-	case GLUT_KEY_DOWN:
-		camera.rotateX(-a);
-		break;
-	case GLUT_KEY_LEFT:
-		camera.rotateY(a);
-		break;
-	case GLUT_KEY_RIGHT:
-		camera.rotateY(-a);
-		break;
-	}
-
-	glutPostRedisplay();
-}
-
-void main(int argc, char** argv) {
-	glutInit(&argc, argv);
-
-	glutInitWindowSize(640, 480);
-	glutInitWindowPosition(50, 50);
-
-	glutCreateWindow("Lab 5");
-	glutDisplayFunc(Display);
-	glutKeyboardFunc(Keyboard);
-	glutSpecialFunc(Special);
-
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_NORMALIZE);
-	glEnable(GL_COLOR_MATERIAL);
-
-	glShadeModel(GL_SMOOTH);
-
-	glutMainLoop();
 }
