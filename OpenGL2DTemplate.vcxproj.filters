@@ -22,4 +22,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\collect.wav">
+      <Filter>Source Files</Filter>
+    </Media>
+    <Media Include="..\gameOver.wav">
+      <Filter>Source Files</Filter>
+    </Media>
+    <Media Include="..\win.wav">
+      <Filter>Source Files</Filter>
+    </Media>
+    <Media Include="..\playSound.wav">
+      <Filter>Source Files</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

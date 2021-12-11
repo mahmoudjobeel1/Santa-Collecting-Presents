@@ -84,6 +84,12 @@
   <ItemGroup>
     <ClCompile Include="OpenGL2DTemplate.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\collect.wav" />
+    <Media Include="..\gameOver.wav" />
+    <Media Include="..\playSound.wav" />
+    <Media Include="..\win.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

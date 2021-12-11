@@ -1,3 +1,5 @@
 ﻿  OpenGL2DTemplate.cpp
+E:\GUC\Semester 7 Courses\DMET 502 Graphics\Assignments\Santa-Collecting-Presents\Santa-Collecting-Presents\OpenGL2DTemplate.cpp(19,1): warning C4005: 'min': macro redefinition
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(197): message : see previous definition of 'min'
 OpenGL2DTemplate.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
   OpenGL2DTemplate.vcxproj -> E:\GUC\Semester 7 Courses\DMET 502 Graphics\Assignments\Santa-Collecting-Presents\Santa-Collecting-Presents\Debug\OpenGL2DTemplate.exe
